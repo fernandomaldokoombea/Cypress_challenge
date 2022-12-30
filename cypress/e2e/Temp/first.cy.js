@@ -26,7 +26,7 @@ describe('example to-do app', () => {
       //Agregar al carrito
       cy.get('#add-to-cart-button').should('be.visible').click()
       //Realizar busqueda de logitech keyboard' nuevamente
-      cy.get('#twotabsearchtextbox').should('be.visible').type('logitech keyboard')
+      cy.get('#twotabsearchtextbox').should('be.visible').type('logitech mouse', {force: true})
       cy.get('#nav-search-submit-button').should('be.visible').click()
       //Ordenar de mayor a menor
       cy.get('.a-dropdown-label').contains('Sort by:').should('be.visible').click()
@@ -52,5 +52,49 @@ describe('example to-do app', () => {
            assert.isOk('everything','everything is OK');
         }
     });
+
+  //Hacer una busqueda de 'logitech keyboard'
+  cy.get('#twotabsearchtextbox').should('be.visible').type('logitech headset',  {force: true})
+  cy.get('#nav-search-submit-button').should('be.visible').click({force: true})
+  //Obtener la cantidad de elementos validos
+  let countOfElements = 0;
+  cy.get("span.a-price-whole").then($elements => {
+      countOfElements = $elements.length;
+      countOfElements = countOfElements/2
+      countOfElements = Math.round(countOfElements)
+      $elements.get(countOfElements).click()
+    });
+  //Agregar al carrito
+  cy.get('#add-to-cart-button').should('be.visible').click()
+  cy.wait(5000)
+      cy.get("body").then($body => {
+        if ($body.find("#attachSiAddCoverage").length > 0) {   
+        //evaluates as true if button exists at all
+            cy.get("#attachSiAddCoverage").then($header => {
+              if ($header.is(':visible')){
+                //you get here only if button EXISTS and is VISIBLE
+                cy.get('#attachSiNoCoverage').click({force: true})
+              } else {
+                //you get here only if button EXISTS but is INVISIBLEs
+              }
+            });
+        } else {
+           //you get here if the button DOESN'T EXIST
+           assert.isOk('everything','everything is OK');
+        }
+    });
+    cy.wait(5000)
+    //ir al carrito de compras
+    cy.get('#nav-cart').should('be.visible').click({force:true})
+
+    //cambiar la cantidad al primer producto
+    cy.get('[data-a-class="quantity"]').should('be.visible').first().click()
+    cy.get("#quantity_2").should('be.visible').click()
+    //borrar el ultimo producto
+    cy.get('[value="Delete"]').should('be.visible').last().click()
+    
+    //Mover para despues el ultimo producto
+    cy.wait(5000)
+    cy.get('[value="Save for later"]').should('be.visible').last().click()
   })
 })
